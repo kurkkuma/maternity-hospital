@@ -1,0 +1,16 @@
+@import url("_login.scss");
+@import url("_register.scss");
+
+body {
+  background-image: url("/images/bg.png");
+  background-size: cover; /* чтобы изображение занимало всю площадь фона */
+  background-repeat: no-repeat; /* чтобы изображение не повторялось */
+  // background-position: bottom center; /* чтобы изображение располагалось по центру */
+  background-attachment: fixed;
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  font-family: Trebuchet MS, sans-serif;
+}

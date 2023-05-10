@@ -1,0 +1,145 @@
+.reg-container {
+  .reg-info {
+    position: absolute;
+    width: 30%;
+    top: 10%;
+    left: 5%;
+    display: flex;
+    flex-direction: column;
+
+    .info-title {
+      margin-bottom: 30px;
+      font-size: 140%;
+      color: #d0d5de;
+      opacity: 0;
+      animation: appearance 1s ease-in-out both;
+    }
+    .info-description {
+      margin-top: 30px;
+      font-size: 140%;
+      color: #d0d5de;
+      opacity: 0;
+      animation: appearance 1s ease-in-out both,
+        disappearance 1s ease-in-out 7s both;
+    }
+    .info-img {
+      width: 450px;
+      height: 450px;
+      border-radius: 20px;
+      opacity: 0;
+      animation: appearance 1s ease-in-out both;
+    }
+  }
+  .reg-register {
+    position: absolute;
+    width: 35%;
+    top: 8%;
+    right: 5%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    opacity: 0;
+    animation: appearance 1s ease-in-out both;
+    .reg-img {
+      width: 20%;
+      height: 20%;
+    }
+    .reg-title {
+      margin: 20px;
+      font-size: 230%;
+      color: #444c66;
+    }
+    .reg-form {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      .form-error {
+        margin: 10px;
+        width: 70%;
+        font-size: 105%;
+        color: red;
+      }
+
+      & input {
+        width: 70%;
+        height: 40px;
+        padding: 5px;
+        margin-bottom: 10px;
+        font-size: 130%;
+        color: #757a89;
+      }
+      .form-submit {
+        position: relative;
+        display: block;
+        width: 40%;
+        height: 50px;
+        margin: 10px;
+        border: none;
+        font-size: 150%;
+        background: transparent;
+        color: #0452d7;
+        overflow: hidden;
+        z-index: 1;
+        cursor: pointer;
+
+        & span {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          padding: 10px;
+          box-sizing: border-box;
+          background: white;
+          z-index: -1;
+          border: 4px solid #0452d7;
+        }
+        & span::before {
+          content: "";
+          display: block;
+          position: absolute;
+          width: 80%;
+          height: 20%;
+          background: white;
+          top: 0%;
+          left: 40%;
+          transform: translate(-50%, -50%) rotate(30deg);
+
+          transition: all 0.5s;
+        }
+        &:hover span::before {
+          transform: translate(-50%, -50%) rotate(30deg);
+          height: 450%;
+          width: 450%;
+          top: 50%;
+          left: 50%;
+          background-color: #0452d7;
+        }
+        &:hover {
+          color: white;
+        }
+        &:active span::before {
+          background-color: #003796;
+        }
+      }
+    }
+    .reg-gratitude {
+      margin: 20px;
+      font-size: 150%;
+      color: #757a89;
+    }
+  }
+}
+
+@keyframes appearance {
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes disappearance {
+  100% {
+    opacity: 0;
+  }
+}

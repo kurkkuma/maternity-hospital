@@ -1,0 +1,138 @@
+.log-container {
+  .log-form {
+    position: absolute;
+    width: 35%;
+    top: 8%;
+    right: 5%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    opacity: 0;
+    animation: appearance 1s ease-in-out both;
+
+    .form-img {
+      width: 20%;
+      height: 20%;
+    }
+    .form-greetings {
+      margin: 20px;
+      font-size: 230%;
+      color: #444c66;
+    }
+    .form-description {
+      font-size: 150%;
+      margin-bottom: 20px;
+      color: #757a89;
+    }
+    .form-title {
+      margin: 20px;
+      font-size: 150%;
+      color: #0452d7;
+    }
+    .form-surname,
+    .form-password {
+      width: 70%;
+      height: 40px;
+      padding: 5px;
+      margin-bottom: 10px;
+      font-size: 130%;
+      color: #757a89;
+    }
+    .form-login {
+      position: relative;
+      display: block;
+      width: 40%;
+      height: 50px;
+      margin: 10px;
+      border: none;
+      font-size: 150%;
+      background: transparent;
+      color: #0452d7;
+      overflow: hidden;
+      z-index: 1;
+      cursor: pointer;
+
+      & span {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        background: white;
+        z-index: -1;
+        border: 4px solid #0452d7;
+      }
+      & span::before {
+        content: "";
+        display: block;
+        position: absolute;
+        width: 80%;
+        height: 20%;
+        background: white;
+        top: 0%;
+        left: 40%;
+        transform: translate(-50%, -50%) rotate(30deg);
+
+        transition: all 0.5s;
+      }
+      &:hover span::before {
+        transform: translate(-50%, -50%) rotate(30deg);
+        height: 450%;
+        width: 450%;
+        top: 50%;
+        left: 50%;
+        background-color: #0452d7;
+      }
+      &:hover {
+        color: white;
+      }
+      &:active span::before {
+        background-color: #003796;
+      }
+    }
+    .form-register {
+      font-size: 140%;
+      margin: 20px;
+      color: #444c66;
+      cursor: pointer;
+    }
+  }
+  .log-slider {
+    position: absolute;
+    width: 30%;
+    top: 13%;
+    left: 5%;
+    display: flex;
+    flex-direction: column;
+
+    .slider-img {
+      width: 450px;
+      height: 450px;
+      border-radius: 20px;
+      opacity: 0;
+      animation: appearance 1s ease-in-out both,
+        disappearance 1s ease-in-out 7s both;
+    }
+    .slider-description {
+      margin-top: 30px;
+      font-size: 140%;
+      color: #d0d5de;
+      opacity: 0;
+      animation: appearance 1s ease-in-out both,
+        disappearance 1s ease-in-out 7s both;
+    }
+  }
+}
+
+@keyframes appearance {
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes disappearance {
+  100% {
+    opacity: 0;
+  }
+}
