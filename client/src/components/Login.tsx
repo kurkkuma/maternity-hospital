@@ -5,8 +5,51 @@ import { AppContext } from "../App";
 function Login() {
   //данные о слайдах
   const { logData } = useContext(AppContext);
-
-  const [activeIndex, setActiveIndex] = useState(0);
+  //данные которые ввел пользователь
+  const [logSurname, setLogSurname] = useState<string>("");
+  const [logPassword, setLogPassword] = useState<string>("");
+  //массив с ошибками для валидации данных при авторизации
+  const [errors, setErrors] = useState<string[]>([]);
+  //стейт для хранения текущего индекса слайда
+  const [activeIndex, setActiveIndex] = useState<number>(0);
+  //функция авторизации и отправки введенных данных пользователя
+  const handleLogin = (e: any) => {
+    e.preventDefault();
+    let newErrors = [];
+    //проверяем заполнены ли все поля
+    if (logSurname.trim().length === 0 || logPassword.trim().length === 0) {
+      newErrors.push("Заповніть всі поля");
+    }
+    //сохраняем все ошибки в стейт
+    setErrors(newErrors);
+    //если валидация прошла успешно и нет ошибок, сохраняем данные и отправляем на сервер
+    if (newErrors.length === 0) {
+      const data = {
+        surname: logSurname,
+        password: logPassword,
+      };
+      //отправка данных на сервер
+      fetch("http://localhost:8080/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      // .then((response) => {
+      //   if (response.status === 401) {
+      //     //если пароль уже занят то меняем значение ошибки на true что бы предупредить пользователя
+      //     setErrors(true);
+      //     throw new Error("this phone is already taken");
+      //   }
+      //   //если все в порядке убираем ошибку
+      //   setPhoneError(false);
+      //   return response.json();
+      // })
+      // .then((data) => console.log(data))
+      // .catch((error) => console.error(error));
+    }
+  };
 
   //смена индекса текущего слайда каждые 8 секунд
   setTimeout(() => {
@@ -38,16 +81,30 @@ function Login() {
         </h3>
         <p className="form-title">Увійдіть до свого облікового запису</p>
         <input
+          name="surname"
+          value={logSurname}
+          onChange={(e) => setLogSurname(e.target.value)}
           type="text"
           placeholder="Ваше прізвище"
           className="form-surname"
         />
         <input
+          name="password"
+          value={logPassword}
+          onChange={(e) => setLogPassword(e.target.value)}
           type="password"
           placeholder="Ваш пароль"
           className="form-password"
         />
-        <button className="form-login">
+        {errors.length > 0 &&
+          errors.map((error, index) => {
+            return (
+              <p key={index} className="form-error">
+                {error}
+              </p>
+            );
+          })}
+        <button className="form-login" onClick={handleLogin}>
           Увійти<span></span>
         </button>
         <Link to="/register" style={{ textDecoration: "none" }}>

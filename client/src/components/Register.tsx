@@ -12,9 +12,11 @@ function Register() {
   const [regPassword, setRegPassword] = useState<string>("");
   //массив с ошибками для валидации данных при регистрации
   const [errors, setErrors] = useState<string[]>([]);
+  //стейт для хранения значения если пароль уже занят
+  const [phoneError, setPhoneError] = useState<boolean>(false);
   //стейт для хранения текущего индекса слайда
   const [activeIndex, setActiveIndex] = useState<number>(0);
-  //функция проверки и отправки данных
+  //функция проверки и отправки данных регистрации
   const handleRegister = (e: any) => {
     e.preventDefault();
     let newErrors: Array<string> = [];
@@ -43,8 +45,26 @@ function Register() {
         phone: regPhone,
         password: regPassword,
       };
-
-      console.log(data);
+      //отправка данных на сервер
+      fetch("http://localhost:8080/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      })
+        .then((response) => {
+          if (response.status === 409) {
+            //если пароль уже занят то меняем значение ошибки на true что бы предупредить пользователя
+            setPhoneError(true);
+            throw new Error("this phone is already taken");
+          }
+          //если все в порядке убираем ошибку
+          setPhoneError(false);
+          return response.json();
+        })
+        .then((data) => console.log(data))
+        .catch((error) => console.error(error));
     }
   };
 
@@ -115,6 +135,10 @@ function Register() {
                 </p>
               );
             })}
+          {/* если такой пароль уже занят то информируем пользователя */}
+          {phoneError && (
+            <p className="form-error">Такий номер телефону вже зайнятий</p>
+          )}
           <button onClick={handleRegister} className="form-submit">
             Зберегти<span></span>
           </button>
