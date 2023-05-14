@@ -2,9 +2,18 @@ import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppContext } from "../App";
 
+import RoomInfo from "./RoomInfo";
+import RoomBooking from "./RoomBooking";
+
 function Account() {
-  const { user } = useContext(AppContext);
+  const { user, setUser } = useContext(AppContext);
   const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    setUser({});
+    navigate("/");
+  };
 
   return (
     <div className="acc-container">
@@ -50,63 +59,15 @@ function Account() {
         </a>
 
         <img
-          onClick={() => navigate("/")}
+          onClick={handleLogout}
           className="panel-logout"
           src="images/side-panel/logout.png"
           alt=""
         />
       </div>
       <div className="acc-room">
-        <div className="room-info">
-          <h1 className="info-title">Ваша заброньована палата:</h1>
-          <h1 className="info-number">номпер палаты 13</h1>
-          <p className="info-name">название палаты</p>
-          <p className="info-description">
-            Палата на одну особу: включає цілодобове медичне обслуговування,
-            індивідуальний догляд, зручне ліжко, особистий санвузол та смачне
-            харчування для матері, а також різні зручності, а також різні
-            медичні приладдя, інструменти та обладнання для пологів
-          </p>
-          <p className="info-start-date">Дата заселение 23-05-2023</p>
-          <p className="info-end-date">Дата заселение 30-05-2023</p>
-          <p className="info-price">цена палаты</p>
-          <h6>Скасувати бронювання</h6>
-        </div>
-        <div className="room-book">
-          <h1 className="book-title">Забронируйте палату</h1>
-          <div className="book-label-conainer">
-            <label htmlFor="room-type">Виберіть тип палати: </label>
-            <select id="room-type" name="room-type">
-              <option value="single">На одного</option>
-              <option value="double">На двох</option>
-            </select>
-          </div>
-
-          <div className="book-label-conainer">
-            <label htmlFor="room-number">Виберіть номер палати:</label>
-
-            <select name="room-number" id="room-number">
-              <option value="1">1</option>
-              <option value="1">1</option>
-              <option value="1">1</option>
-            </select>
-          </div>
-          <div className="book-label-conainer">
-            <label htmlFor="start-date">Виберіть дату заселення:</label>
-            <input type="date" id="start-date" />
-          </div>
-          <div className="book-label-conainer">
-            <label htmlFor="end-dater">Виберіть дату виселення:</label>
-
-            <input type="date" id="end-date" />
-          </div>
-          <p className="book-price">Ціна: 20 грн/доба</p>
-          <p className="book-price">Ціна за 2 доби: 60 грн</p>
-
-          <button className="book-btn">
-            Забронювати палату<span></span>
-          </button>
-        </div>
+        <RoomInfo />
+        <RoomBooking />
       </div>
     </div>
   );

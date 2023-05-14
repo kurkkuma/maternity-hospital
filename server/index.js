@@ -7,6 +7,7 @@ const cors = require("cors");
 
 const User = require("./models/user");
 const Room = require("./models/room");
+const BookedRoom = require("./models/bookedRoom");
 // Создаем экземпляр приложения Express
 const app = express();
 // Устанавливаем порт, на котором будет запущен сервер. Если переменная окружения PORT не установлена, используем порт 8080
@@ -64,6 +65,55 @@ app.post("/login", async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal server error" });
+  }
+});
+//получаем все палаты с бд
+app.get("/rooms", async (req, res) => {
+  try {
+    const rooms = await Room.find({});
+    res.json(rooms);
+  } catch (error) {
+    console.log(error);
+  }
+});
+//бронированние палаты и изменение статуса
+app.post("/add-booked-room", async (req, res) => {
+  const {
+    userId,
+    roomId,
+    number,
+    type,
+    description,
+    startDate,
+    endDate,
+    amountOfDays,
+    fullPrice,
+  } = req.body;
+
+  const bookedRoom = new BookedRoom({
+    userId,
+    roomId,
+    number,
+    type,
+    description,
+    startDate,
+    endDate,
+    amountOfDays,
+    fullPrice,
+  });
+  try {
+    //добавляем в базу данных забронированную палату
+    const result = await bookedRoom.save();
+    //ищем палату что бы изменить ее статус на забронированный
+    const room = await Room.findOne({ _id: roomId });
+    if (!room) {
+      throw new Error("Room not found");
+    }
+    room.status = "booked";
+    await room.save();
+    res.send(result);
+  } catch (error) {
+    console.log(error);
   }
 });
 

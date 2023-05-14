@@ -1,4 +1,4 @@
-import { createContext, useMemo, useState } from "react";
+import { createContext, useEffect, useMemo, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import Login from "./components/Login";
@@ -20,19 +20,30 @@ type UserType = {
   phone: string;
   password: string;
 };
+export type RoomType = {
+  _id: string;
+  number: number;
+  type: string;
+  description: string;
+  price: number;
+  status: string;
+};
+
 //типизация данных передаваемых в контекст
 interface AppContextType {
   logData: Array<LogDataType>;
   regData: Array<string>;
   user: Partial<UserType>;
   setUser: (user: Partial<UserType>) => void;
+  rooms: Array<RoomType>;
 }
-//создание контекста и указание начального значения
+//создание контекста и указание начального значения для данных
 export const AppContext = createContext<AppContextType>({
   logData: [],
   regData: [],
   user: {},
   setUser: () => {},
+  rooms: [],
 });
 ////////////////////////////////////////////////////////////////////////////////////////////
 function App() {
@@ -40,6 +51,14 @@ function App() {
     const storedUser = localStorage.getItem("user");
     return storedUser ? JSON.parse(storedUser) : {};
   });
+  const [rooms, setRooms] = useState<RoomType[]>([]);
+  //при монтировании компонента отправится запрос на получение всех палат
+  useEffect(() => {
+    fetch("http://localhost:8080/rooms")
+      .then((res) => res.json())
+      .then((data) => setRooms(data));
+  }, []);
+
   //используем useMemo для оптимизации контекста, объект appContextValue будет пересоздан только, если logData или regData изменились.
   const appContextValue = useMemo(
     () => ({
@@ -47,8 +66,9 @@ function App() {
       regData,
       user,
       setUser,
+      rooms,
     }),
-    [logData, regData, user, setUser]
+    [logData, regData, user, setUser, rooms]
   );
 
   return (

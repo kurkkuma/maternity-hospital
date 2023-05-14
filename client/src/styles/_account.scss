@@ -107,7 +107,7 @@
         }
       }
     }
-    .room-book {
+    .room-booking {
       width: 42%;
       padding: 20px;
       display: flex;
@@ -116,16 +116,16 @@
       box-shadow: 0 0 30px -20px #757a89;
       background-color: #ffffff;
 
-      .book-title {
+      .booking-title {
         color: #444c66;
         font-size: 180%;
         margin-bottom: 30px;
       }
-      .book-price {
+      .booking-price {
         font-size: 140%;
         color: #444c66;
       }
-      .book-label-conainer {
+      .booking-label-conainer {
         width: 80%;
         display: flex;
         justify-content: space-between;
@@ -148,7 +148,7 @@
         color: #444c66;
         cursor: pointer;
       }
-      .book-btn {
+      .booking-btn {
         position: relative;
         display: block;
         width: 40%;
