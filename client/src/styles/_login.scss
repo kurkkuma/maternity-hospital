@@ -1,4 +1,12 @@
 .log-container {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  background-image: url("/images/bg.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+
   .log-form {
     position: absolute;
     width: 35%;

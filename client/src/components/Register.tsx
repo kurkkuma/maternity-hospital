@@ -55,7 +55,7 @@ function Register() {
       })
         .then((response) => {
           if (response.status === 409) {
-            //если пароль уже занят то меняем значение ошибки на true что бы предупредить пользователя
+            //если номер телефона уже занят то меняем значение ошибки на true что бы предупредить пользователя
             setPhoneError(true);
             throw new Error("this phone is already taken");
           }

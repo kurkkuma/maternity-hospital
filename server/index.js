@@ -6,12 +6,13 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 
 const User = require("./models/user");
+const Room = require("./models/room");
 // Создаем экземпляр приложения Express
 const app = express();
 // Устанавливаем порт, на котором будет запущен сервер. Если переменная окружения PORT не установлена, используем порт 8080
 const PORT = process.env.PORT || 8080;
 const db =
-  "mongodb+srv://kurkkuma:mouse2505@cluster0.h3yjee1.mongodb.net/test1";
+  "mongodb+srv://kurkkuma:mouse2505@cluster0.h3yjee1.mongodb.net/maternity-hospital-db";
 
 //устраняем ошибку политики безопасности CORS
 app.use(cors());
@@ -25,6 +26,7 @@ mongoose
   .connect(db)
   .then(() => console.log("connected to db"))
   .catch((err) => console.log(err));
+
 /////////////////////////////////////////////////////
 //добавлние новых пользователй при регистрации в бд
 app.post("/register", async (req, res) => {
@@ -50,15 +52,21 @@ app.post("/register", async (req, res) => {
 });
 //авторизация
 app.post("/login", async (req, res) => {
-  const { surname, password } = req.body;
-  //поиск пользователя в базе данных
-  const user = await User.findOne({ surname, password });
-  if (user) {
-    res.status(200).json(user);
-  } else {
-    res.status(401).json({ message: "This user does not exist" });
+  try {
+    const { surname, password } = req.body;
+    //поиск пользователя в базе данных
+    const user = await User.findOne({ surname, password });
+    if (user) {
+      res.status(200).json(user);
+    } else {
+      res.status(401).json({ message: "This user does not exist" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
+
 //запуск сервера
 app.listen(PORT, () => {
   try {

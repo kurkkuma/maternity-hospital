@@ -1,15 +1,19 @@
 import { useState, useContext } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { AppContext } from "../App";
 
 function Login() {
-  //данные о слайдах
-  const { logData } = useContext(AppContext);
+  //берем данные из контекста
+  const { logData, setUser } = useContext(AppContext);
+  //используем хук для будущей навигации
+  const navigate = useNavigate();
   //данные которые ввел пользователь
   const [logSurname, setLogSurname] = useState<string>("");
   const [logPassword, setLogPassword] = useState<string>("");
   //массив с ошибками для валидации данных при авторизации
   const [errors, setErrors] = useState<string[]>([]);
+  //стейт для хранения значения если такой пользователь не найден
+  const [userError, setUserError] = useState<boolean>(false);
   //стейт для хранения текущего индекса слайда
   const [activeIndex, setActiveIndex] = useState<number>(0);
   //функция авторизации и отправки введенных данных пользователя
@@ -35,19 +39,25 @@ function Login() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
-      });
-      // .then((response) => {
-      //   if (response.status === 401) {
-      //     //если пароль уже занят то меняем значение ошибки на true что бы предупредить пользователя
-      //     setErrors(true);
-      //     throw new Error("this phone is already taken");
-      //   }
-      //   //если все в порядке убираем ошибку
-      //   setPhoneError(false);
-      //   return response.json();
-      // })
-      // .then((data) => console.log(data))
-      // .catch((error) => console.error(error));
+      })
+        .then((res) => {
+          if (res.status === 401) {
+            //если пароль уже занят то меняем значение ошибки на true что бы предупредить пользователя
+            setUserError(true);
+            throw new Error("no such user exists");
+          }
+          //если все в порядке убираем ошибку
+          setUserError(false);
+          //перекидываем юзера на аккаунт
+          navigate("/account");
+          return res.json();
+        })
+        //сохраняем данные полученные с сервера о пользователе в стейт и локальное хранилище
+        .then((data) => {
+          setUser(data);
+          localStorage.setItem("user", JSON.stringify(data));
+        })
+        .catch((error) => console.error(error));
     }
   };
 
@@ -104,12 +114,14 @@ function Login() {
               </p>
             );
           })}
+        {userError && <p className="form-error">Такого користувача не існує</p>}
         <button className="form-login" onClick={handleLogin}>
           Увійти<span></span>
         </button>
-        <Link to="/register" style={{ textDecoration: "none" }}>
-          <p className="form-register">Створити обліковий запис</p>
-        </Link>
+
+        <p onClick={() => navigate("/register")} className="form-register">
+          Створити обліковий запис
+        </p>
       </div>
     </div>
   );
