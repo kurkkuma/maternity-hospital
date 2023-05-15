@@ -21,15 +21,11 @@ function RoomBooking() {
       .split("T")[0]
   ); //текущая дата + 1 день по умолчанию
 
-  const [roomPrice, setRoomPrice] = useState<number | undefined>(
-    selectedType === "single"
-      ? freeRooms.find((room) => room.number % 2 != 0)?.price
-      : freeRooms.find((room) => room.number % 2 === 0)?.price
-  );
-  const [amountOfDays, setAmountOfDays] = useState<number>(1);
+  const [roomPrice, setRoomPrice] = useState<number>();
+  const [amountOfDays, setAmountOfDays] = useState<number>();
   const [fullPrice, setFullPrice] = useState<number>();
 
-  //гарантируем что после того как freeRooms будет иметь значение мы установим номер свободной палаты по умолчанию
+  //установим первый номер свободной палаты по умолчанию
   useEffect(() => {
     setSelectedNumber(
       freeRooms.find((room) =>
@@ -38,14 +34,29 @@ function RoomBooking() {
           : room.number % 2 === 0
       )?.number
     );
-  }, [freeRooms]);
-  //после каждого изменения типа компнаты изменяем стейт цены за сутки
+  }, []);
+  //после каждого изменения типа комнаты изменяем цены
   useEffect(() => {
-    setRoomPrice(
+    //находим кол-во дней, конечную и начальную дату переводим в миллисекунды и вычисляем разницу, полученный ответ
+    // в миллисекундах делим на количество миллисекунд в одном дне и округляем методом ceil в большую сторону
+    const amount = Math.ceil(
+      (new Date(selectedEndDate).getTime() -
+        new Date(selectedStartDate).getTime()) /
+        (1000 * 60 * 60 * 24)
+    );
+    setAmountOfDays(amount);
+
+    //цена за сутки
+    const price =
       selectedType === "single"
         ? freeRooms.find((room) => room.number % 2 != 0)?.price
-        : freeRooms.find((room) => room.number % 2 === 0)?.price
-    );
+        : freeRooms.find((room) => room.number % 2 === 0)?.price;
+    setRoomPrice(price);
+
+    //если цена за сутки не undefined то считаем польную стоимость
+    if (price) {
+      setFullPrice(amount * price);
+    }
   }, [freeRooms, selectedType]);
   // в избежании ошибки где начальная дата позже конечной обновлем возможность выбрать конечную дату после каждого изменения начальной
   useEffect(() => {
@@ -55,21 +66,6 @@ function RoomBooking() {
         .split("T")[0]
     );
   }, [selectedStartDate]);
-  // после каждого изменения выбранной даты изменяем общее количество дней и полную стоимость за проживание
-  useEffect(() => {
-    //конечную и начальную дату переводим в миллисекунды и вычисляем разницу, полученный ответ
-    // в миллисекундах делим на количество миллисекунд в одном дне и округляем методом ceil в большую сторону
-    const amount = Math.ceil(
-      (new Date(selectedEndDate).getTime() -
-        new Date(selectedStartDate).getTime()) /
-        (1000 * 60 * 60 * 24)
-    );
-    setAmountOfDays(amount);
-    //если цена за сутки не undefined то считаем польную стоимость
-    if (roomPrice) {
-      setFullPrice(amount * roomPrice);
-    }
-  }, [selectedStartDate, selectedEndDate, selectedType, selectedNumber]);
 
   //бронирование палаты (создание объекта забронированной палаты)
   const handleBookRoom = (e: any) => {
@@ -95,7 +91,6 @@ function RoomBooking() {
       body: JSON.stringify(data),
     })
       .then((res) => res.json())
-      // .then((data) => console.log(data))
       .catch((error) => console.log(error));
   };
 
