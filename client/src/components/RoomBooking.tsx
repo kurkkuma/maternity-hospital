@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useMemo } from "react";
 import { AppContext } from "../App";
 
 import { RoomType } from "../App";
@@ -7,7 +7,10 @@ function RoomBooking() {
   //берем из контекста все палаты
   const { user, rooms, userBookedRoom } = useContext(AppContext);
   //фильтруем все палаты и оставляем только свободные
-  const freeRooms: RoomType[] = rooms.filter((room) => room.status === "free");
+  const freeRooms = useMemo(
+    () => rooms.filter((room) => room.status === "free"),
+    [rooms]
+  );
 
   //данные которые ввел пользователь
   const [selectedType, setSelectedType] = useState<string>("single"); //по умолчанию тип палаты на одного
@@ -35,7 +38,7 @@ function RoomBooking() {
           : room.number % 2 === 0
       )?.number
     );
-  }, []);
+  }, [freeRooms]);
   //после каждого изменения типа комнаты изменяем цены
   useEffect(() => {
     //находим кол-во дней, конечную и начальную дату переводим в миллисекунды и вычисляем разницу, полученный ответ
@@ -58,7 +61,7 @@ function RoomBooking() {
     if (price) {
       setFullPrice(amount * price);
     }
-  }, [freeRooms, selectedType]);
+  }, [freeRooms, selectedType, selectedStartDate, selectedEndDate]);
   // в избежании ошибки где начальная дата позже конечной обновлем возможность выбрать конечную дату после каждого изменения начальной
   useEffect(() => {
     setSelectedEndDate(
@@ -94,6 +97,7 @@ function RoomBooking() {
       })
         .then((res) => res.json())
         .catch((error) => console.log(error));
+      location.reload();
     }
     //если же у пользователя уже есть забронированная палата то выводим ошибку
     setErrorRoomExists(true);

@@ -49,6 +49,7 @@ interface AppContextType {
   rooms: Array<RoomType>;
   bookedRooms: Array<BookedRoomType>;
   userBookedRoom: BookedRoomType | undefined;
+  setUserBookedRoom: (userBookedRoom: BookedRoomType | undefined) => void;
 }
 //создание контекста и указание начального значения для данных
 export const AppContext = createContext<AppContextType>({
@@ -59,6 +60,7 @@ export const AppContext = createContext<AppContextType>({
   rooms: [],
   bookedRooms: [],
   userBookedRoom: undefined as BookedRoomType | undefined,
+  setUserBookedRoom: () => {},
 });
 ////////////////////////////////////////////////////////////////////////////////////////////
 function App() {
@@ -70,9 +72,9 @@ function App() {
   const [bookedRooms, setBookedRooms] = useState<BookedRoomType[]>([]);
 
   //берем палату авторизированного пользователя
-  const userBookedRoom: BookedRoomType | undefined = bookedRooms.find(
-    (room) => room.userId === user._id
-  );
+  const [userBookedRoom, setUserBookedRoom] = useState<
+    BookedRoomType | undefined
+  >();
 
   //при монтировании компонента отправится запрос на получение всех палат
   useEffect(() => {
@@ -85,6 +87,10 @@ function App() {
       .then((data) => setBookedRooms(data));
   }, []);
 
+  useEffect(() => {
+    setUserBookedRoom(bookedRooms.find((room) => room.userId === user._id));
+  }, [bookedRooms, user]);
+
   //используем useMemo для оптимизации контекста, объект appContextValue будет пересоздан только, если logData или regData изменились.
   const appContextValue = useMemo(
     () => ({
@@ -95,8 +101,18 @@ function App() {
       rooms,
       bookedRooms,
       userBookedRoom,
+      setUserBookedRoom,
     }),
-    [logData, regData, user, setUser, rooms, bookedRooms, userBookedRoom]
+    [
+      logData,
+      regData,
+      user,
+      setUser,
+      rooms,
+      bookedRooms,
+      userBookedRoom,
+      setUserBookedRoom,
+    ]
   );
 
   return (

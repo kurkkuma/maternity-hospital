@@ -1,8 +1,22 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import { AppContext } from "../App";
 
 function RoomInfo() {
-  const { userBookedRoom } = useContext(AppContext);
+  const { userBookedRoom, setUserBookedRoom } = useContext(AppContext);
+
+  const handleRoomDelete = () => {
+    fetch("http://localhost:8080/delete-room", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userBookedRoom),
+    })
+      .then((response) => response.json())
+      .then(() => setUserBookedRoom(undefined))
+      .catch((error) => console.error(error));
+    location.reload();
+  };
 
   return (
     <div className="room-info">
@@ -23,7 +37,7 @@ function RoomInfo() {
             Ціна за {userBookedRoom.amountOfDays} доби:{" "}
             {userBookedRoom.fullPrice} грн
           </p>
-          <h6>Скасувати бронювання</h6>
+          <h6 onClick={handleRoomDelete}>Скасувати бронювання</h6>
         </>
       ) : (
         // если палата еще не забронирована то выводим соответствующую информацию

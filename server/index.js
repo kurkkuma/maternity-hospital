@@ -76,6 +76,7 @@ app.get("/rooms", async (req, res) => {
     console.log(error);
   }
 });
+//получить все забронированные палаты
 app.get("/booked-rooms", async (req, res) => {
   try {
     const bookedRooms = await BookedRoom.find({});
@@ -122,6 +123,26 @@ app.post("/add-booked-room", async (req, res) => {
     res.send(result);
   } catch (error) {
     console.log(error);
+  }
+});
+//отменить забронированную палату
+app.post("/delete-room", async (req, res) => {
+  const { _id, roomId } = req.body;
+  // Удаляем комнату с указанным _id из bookedRooms
+  const deletedRoom = await BookedRoom.findOneAndDelete({ _id });
+
+  // Если комната не найдена, возвращаем ошибку
+  if (!deletedRoom) {
+    throw new Error("Room not found");
+  }
+  // Изменяем статус комнаты с указанным _id в rooms на "free"
+  const updatedRoom = await Room.findOneAndUpdate(
+    { _id: roomId },
+    { status: "free" }
+  );
+  // Если комната не найдена, возвращаем ошибку
+  if (!updatedRoom) {
+    throw new Error("Room not found");
   }
 });
 
