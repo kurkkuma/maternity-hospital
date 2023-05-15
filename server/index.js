@@ -76,6 +76,14 @@ app.get("/rooms", async (req, res) => {
     console.log(error);
   }
 });
+app.get("/booked-rooms", async (req, res) => {
+  try {
+    const bookedRooms = await BookedRoom.find({});
+    res.json(bookedRooms);
+  } catch (error) {
+    console.log(error);
+  }
+});
 //бронированние палаты и изменение статуса
 app.post("/add-booked-room", async (req, res) => {
   const {

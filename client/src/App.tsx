@@ -28,7 +28,18 @@ export type RoomType = {
   price: number;
   status: string;
 };
-
+export type BookedRoomType = {
+  _id: string;
+  userId: string;
+  roomId: string;
+  number: number;
+  type: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  amountOfDays: number;
+  fullPrice: number;
+};
 //типизация данных передаваемых в контекст
 interface AppContextType {
   logData: Array<LogDataType>;
@@ -36,6 +47,8 @@ interface AppContextType {
   user: Partial<UserType>;
   setUser: (user: Partial<UserType>) => void;
   rooms: Array<RoomType>;
+  bookedRooms: Array<BookedRoomType>;
+  userBookedRoom: BookedRoomType | undefined;
 }
 //создание контекста и указание начального значения для данных
 export const AppContext = createContext<AppContextType>({
@@ -44,6 +57,8 @@ export const AppContext = createContext<AppContextType>({
   user: {},
   setUser: () => {},
   rooms: [],
+  bookedRooms: [],
+  userBookedRoom: undefined as BookedRoomType | undefined,
 });
 ////////////////////////////////////////////////////////////////////////////////////////////
 function App() {
@@ -52,11 +67,22 @@ function App() {
     return storedUser ? JSON.parse(storedUser) : {};
   });
   const [rooms, setRooms] = useState<RoomType[]>([]);
+  const [bookedRooms, setBookedRooms] = useState<BookedRoomType[]>([]);
+
+  //берем палату авторизированного пользователя
+  const userBookedRoom: BookedRoomType | undefined = bookedRooms.find(
+    (room) => room.userId === user._id
+  );
+
   //при монтировании компонента отправится запрос на получение всех палат
   useEffect(() => {
     fetch("http://localhost:8080/rooms")
       .then((res) => res.json())
       .then((data) => setRooms(data));
+
+    fetch("http://localhost:8080/booked-rooms")
+      .then((res) => res.json())
+      .then((data) => setBookedRooms(data));
   }, []);
 
   //используем useMemo для оптимизации контекста, объект appContextValue будет пересоздан только, если logData или regData изменились.
@@ -67,8 +93,10 @@ function App() {
       user,
       setUser,
       rooms,
+      bookedRooms,
+      userBookedRoom,
     }),
-    [logData, regData, user, setUser, rooms]
+    [logData, regData, user, setUser, rooms, bookedRooms, userBookedRoom]
   );
 
   return (

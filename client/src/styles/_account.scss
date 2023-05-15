@@ -92,6 +92,14 @@
         color: #0452d7;
         font-size: 170%;
       }
+      .info-start-date,
+      .info-end-date {
+        color: #0452d7;
+      }
+      .info-warning {
+        color: #757a89;
+        font-size: 140%;
+      }
       & p {
         color: #444c66;
         font-size: 140%;
@@ -100,6 +108,7 @@
         margin-top: 30px;
         color: #757a89;
         font-size: 140%;
+        transition: all 0.5s ease-in-out;
         cursor: pointer;
 
         &:hover {
@@ -202,6 +211,25 @@
           background-color: #003796;
         }
       }
+      .booking-error {
+        width: 80%;
+        font-size: 120%;
+        color: #e24c4c;
+        opacity: 0;
+        animation: appearance 0.5s ease-in-out both,
+          disappearance 0.5s ease-in-out 6s both;
+      }
     }
+  }
+}
+
+@keyframes appearance {
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes disappearance {
+  100% {
+    opacity: 0;
   }
 }

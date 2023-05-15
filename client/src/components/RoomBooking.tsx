@@ -5,7 +5,7 @@ import { RoomType } from "../App";
 
 function RoomBooking() {
   //берем из контекста все палаты
-  const { user, rooms } = useContext(AppContext);
+  const { user, rooms, userBookedRoom } = useContext(AppContext);
   //фильтруем все палаты и оставляем только свободные
   const freeRooms: RoomType[] = rooms.filter((room) => room.status === "free");
 
@@ -25,6 +25,7 @@ function RoomBooking() {
   const [amountOfDays, setAmountOfDays] = useState<number>();
   const [fullPrice, setFullPrice] = useState<number>();
 
+  const [errorRoomExists, setErrorRoomExists] = useState<boolean>(false);
   //установим первый номер свободной палаты по умолчанию
   useEffect(() => {
     setSelectedNumber(
@@ -68,30 +69,37 @@ function RoomBooking() {
   }, [selectedStartDate]);
 
   //бронирование палаты (создание объекта забронированной палаты)
-  const handleBookRoom = (e: any) => {
-    e.preventDefault();
-    const data = {
-      userId: user._id,
-      roomId: freeRooms.find((room) => room.number === selectedNumber)?._id,
-      number: selectedNumber,
-      type: freeRooms.find((room) => room.number === selectedNumber)?.type,
-      description: freeRooms.find((room) => room.number === selectedNumber)
-        ?.description,
-      startDate: selectedStartDate,
-      endDate: selectedEndDate,
-      amountOfDays: amountOfDays,
-      fullPrice: fullPrice,
-    };
-    console.log(data);
-    fetch("http://localhost:8080/add-booked-room", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    })
-      .then((res) => res.json())
-      .catch((error) => console.log(error));
+  const handleBookRoom = () => {
+    //если у пользователя еще нет забронированной палаты то бронируем
+    if (!userBookedRoom) {
+      const data = {
+        userId: user._id,
+        roomId: freeRooms.find((room) => room.number === selectedNumber)?._id,
+        number: selectedNumber,
+        type: freeRooms.find((room) => room.number === selectedNumber)?.type,
+        description: freeRooms.find((room) => room.number === selectedNumber)
+          ?.description,
+        startDate: selectedStartDate,
+        endDate: selectedEndDate,
+        amountOfDays: amountOfDays,
+        fullPrice: fullPrice,
+      };
+      console.log(data);
+      fetch("http://localhost:8080/add-booked-room", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      })
+        .then((res) => res.json())
+        .catch((error) => console.log(error));
+    }
+    //если же у пользователя уже есть забронированная палата то выводим ошибку
+    setErrorRoomExists(true);
+    setTimeout(() => {
+      setErrorRoomExists(false);
+    }, 7000);
   };
 
   return (
@@ -175,6 +183,11 @@ function RoomBooking() {
       <button onClick={handleBookRoom} className="booking-btn">
         Забронювати палату<span></span>
       </button>
+      {errorRoomExists && (
+        <p className="booking-error">
+          Помилка! Один користувач може мати лише одну заброньовану палату
+        </p>
+      )}
     </div>
   );
 }
