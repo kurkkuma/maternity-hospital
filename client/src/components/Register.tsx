@@ -1,8 +1,9 @@
 import { useState, useContext } from "react";
-
+import { useNavigate } from "react-router-dom";
 import { AppContext } from "../App";
 
 function Register() {
+  const navigate = useNavigate();
   //берем данные для слайда из контекста
   const { regData } = useContext(AppContext);
   //стейты для хранения данных которые ввел пользователь при регистрации
@@ -29,8 +30,14 @@ function Register() {
     }
     if (regPhone.trim().length !== 13) {
       newErrors.push(
-        "Номер телефону повинен обов'язково містити +380 та бути довжиною 13 символів"
+        "Номер телефону повинен обов'язково бути довжиною 13 символів"
       );
+    }
+    if (!regPhone.trim().slice(0, 4).includes("+380")) {
+      newErrors.push("Номер телефону повинен обов'язково містити +380");
+    }
+    if (!/^\+\d+$/.test(regPhone.trim())) {
+      newErrors.push("Номер телефону має бути формату +380ХХХХХХХХХ");
     }
     if (regPassword.trim().length < 6) {
       newErrors.push("Пароль має бути довжиною 6 або більше символів");
@@ -65,6 +72,8 @@ function Register() {
         })
         .then((data) => console.log(data))
         .catch((error) => console.error(error));
+
+      navigate("/");
     }
   };
 
@@ -117,6 +126,7 @@ function Register() {
             value={regPhone}
             onChange={(e) => setRegPhone(e.target.value)}
             maxLength={13}
+            pattern="[0-9\+]*"
           />
           <input
             name="password"

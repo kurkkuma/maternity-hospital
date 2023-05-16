@@ -1,8 +1,6 @@
 import { useContext, useEffect, useState, useMemo } from "react";
 import { AppContext } from "../App";
 
-import { RoomType } from "../App";
-
 function RoomBooking() {
   //берем из контекста все палаты
   const { user, rooms, userBookedRoom } = useContext(AppContext);
@@ -76,8 +74,8 @@ function RoomBooking() {
     //если у пользователя еще нет забронированной палаты то бронируем
     if (!userBookedRoom) {
       const data = {
-        userId: user._id,
-        roomId: freeRooms.find((room) => room.number === selectedNumber)?._id,
+        userId: user.id,
+        roomId: freeRooms.find((room) => room.number === selectedNumber)?.id,
         number: selectedNumber,
         type: freeRooms.find((room) => room.number === selectedNumber)?.type,
         description: freeRooms.find((room) => room.number === selectedNumber)

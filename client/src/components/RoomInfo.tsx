@@ -28,14 +28,14 @@ function RoomInfo() {
           <p className="info-type">{userBookedRoom.type}</p>
           <p className="info-description">{userBookedRoom.description}</p>
           <p className="info-start-date">
-            Дата заселення: {userBookedRoom.startDate}
+            Дата заселення: {userBookedRoom.start_date}
           </p>
           <p className="info-end-date">
-            Дата виселення: {userBookedRoom.endDate}
+            Дата виселення: {userBookedRoom.end_date}
           </p>
           <p className="info-price">
-            Ціна за {userBookedRoom.amountOfDays} доби:{" "}
-            {userBookedRoom.fullPrice} грн
+            Ціна за {userBookedRoom.amount_days} доби:{" "}
+            {userBookedRoom.full_price} грн
           </p>
           <h6 onClick={handleRoomDelete}>Скасувати бронювання</h6>
         </>

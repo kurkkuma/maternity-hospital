@@ -14,14 +14,14 @@ type LogDataType = {
   description: string;
 };
 type UserType = {
-  _id: string;
+  id: string;
   name: string;
   surname: string;
   phone: string;
   password: string;
 };
 export type RoomType = {
-  _id: string;
+  id: string;
   number: number;
   type: string;
   description: string;
@@ -29,16 +29,16 @@ export type RoomType = {
   status: string;
 };
 export type BookedRoomType = {
-  _id: string;
-  userId: string;
-  roomId: string;
+  id: string;
+  user_id: string;
+  room_id: string;
   number: number;
   type: string;
   description: string;
-  startDate: string;
-  endDate: string;
-  amountOfDays: number;
-  fullPrice: number;
+  start_date: string;
+  end_date: string;
+  amount_days: number;
+  full_price: number;
 };
 //типизация данных передаваемых в контекст
 interface AppContextType {
@@ -88,7 +88,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    setUserBookedRoom(bookedRooms.find((room) => room.userId === user._id));
+    setUserBookedRoom(bookedRooms.find((room) => room.user_id === user.id));
   }, [bookedRooms, user]);
 
   //используем useMemo для оптимизации контекста, объект appContextValue будет пересоздан только, если logData или regData изменились.

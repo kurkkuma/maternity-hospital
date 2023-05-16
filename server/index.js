@@ -1,92 +1,90 @@
-// Подключаем библиотеку Express для создания сервера
 const express = require("express");
-const mongoose = require("mongoose");
-// Подключаем библиотеку body-parser для парсинга тела запроса в формате JSON
 const bodyParser = require("body-parser");
 const cors = require("cors");
-
-const User = require("./models/user");
-const Room = require("./models/room");
-const BookedRoom = require("./models/bookedRoom");
+const con = require("./connection");
 // Создаем экземпляр приложения Express
 const app = express();
-// Устанавливаем порт, на котором будет запущен сервер. Если переменная окружения PORT не установлена, используем порт 8080
-const PORT = process.env.PORT || 8080;
-const db =
-  "mongodb+srv://kurkkuma:mouse2505@cluster0.h3yjee1.mongodb.net/maternity-hospital-db";
+//подключение к бд
+con.connect((error) => {
+  if (error) console.log(error);
+  console.log("Connected to db");
+});
 
 //устраняем ошибку политики безопасности CORS
 app.use(cors());
-
 // Регистрируем парсер формата JSON в приложении, чтобы можно было работать с данными, переданными в теле запроса, позволяет Express правильно распознавать JSON и URL-encoded данные, переданные в запросе, и обрабатывать их
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+////////////////////////////////////////////////////////////////////////////////
+app.get("/", (req, res) => {
+  res.send("hello :)");
+});
 
-//подключение к бд mongoDB
-mongoose
-  .connect(db)
-  .then(() => console.log("connected to db"))
-  .catch((err) => console.log(err));
-
-/////////////////////////////////////////////////////
-//добавлние новых пользователй при регистрации в бд
-app.post("/register", async (req, res) => {
-  //Достаем данные с тела запроса
+//получаем все палаты с бд
+app.get("/rooms", (req, res) => {
+  try {
+    const sql = "SELECT * FROM rooms";
+    con.query(sql, (error, result) => {
+      if (error) {
+        console.log(error);
+        res.send("Database error");
+      } else {
+        res.json(result);
+      }
+    });
+  } catch (error) {
+    res.send("Server error");
+  }
+});
+//получить все забронированные палаты
+app.get("/booked-rooms", async (req, res) => {
+  try {
+    const sql = "SELECT * FROM booked_rooms";
+    con.query(sql, (error, result) => {
+      if (error) {
+        console.log(error);
+        res.send("Database error");
+      } else {
+        res.json(result);
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
+//регистрация
+app.post("/register", (req, res) => {
   const { name, surname, phone, password } = req.body;
 
-  try {
-    // Проверяем наличие пользователя с таким паролем
-    const existingUser = await User.findOne({ phone });
-    if (existingUser) {
-      // Если пользователь уже есть в базе, возвращаем ошибку
-      return res.status(409).send("this phone is already taken");
-    }
-    //если все хорошо, используя модель user собираем новый объект пользователя
-    const user = new User({ name, surname, phone, password });
-    //сохраняем в бд нового пользователя
-    await user.save();
-    res.send(user); //отображаем результат
-  } catch (err) {
-    console.log(err);
-    res.status(500).send("Internal Server Error");
-  }
+  const sql = "INSERT INTO users(name,surname,phone,password) VALUES(?,?,?,?)";
+  con.query(sql, [name, surname, phone, password], (error, result) => {
+    if (error) console.log(error);
+    res.send(`${result.surname} added to db`);
+  });
 });
 //авторизация
 app.post("/login", async (req, res) => {
   try {
     const { surname, password } = req.body;
     //поиск пользователя в базе данных
-    const user = await User.findOne({ surname, password });
-    if (user) {
-      res.status(200).json(user);
-    } else {
-      res.status(401).json({ message: "This user does not exist" });
-    }
+    const sql = "SELECT * FROM users WHERE surname = ? AND password = ?";
+    con.query(sql, [surname, password], (error, result) => {
+      if (error) {
+        console.log(error);
+        res.status(500).json({ message: "Internal server error" });
+      } else if (result.length > 0) {
+        res.status(200).json(result[0]);
+      } else {
+        res.status(401).json({ message: "This user does not exist" });
+      }
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
-//получаем все палаты с бд
-app.get("/rooms", async (req, res) => {
-  try {
-    const rooms = await Room.find({});
-    res.json(rooms);
-  } catch (error) {
-    console.log(error);
-  }
-});
-//получить все забронированные палаты
-app.get("/booked-rooms", async (req, res) => {
-  try {
-    const bookedRooms = await BookedRoom.find({});
-    res.json(bookedRooms);
-  } catch (error) {
-    console.log(error);
-  }
-});
 //бронированние палаты и изменение статуса
-app.post("/add-booked-room", async (req, res) => {
+app.post("/add-booked-room", (req, res) => {
   const {
     userId,
     roomId,
@@ -99,58 +97,74 @@ app.post("/add-booked-room", async (req, res) => {
     fullPrice,
   } = req.body;
 
-  const bookedRoom = new BookedRoom({
-    userId,
-    roomId,
-    number,
-    type,
-    description,
-    startDate,
-    endDate,
-    amountOfDays,
-    fullPrice,
-  });
-  try {
-    //добавляем в базу данных забронированную палату
-    const result = await bookedRoom.save();
-    //ищем палату что бы изменить ее статус на забронированный
-    const room = await Room.findOne({ _id: roomId });
-    if (!room) {
-      throw new Error("Room not found");
+  const sql =
+    "INSERT INTO booked_rooms(user_id, room_id, number, type, description, start_date, end_date, amount_days, full_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  con.query(
+    sql,
+    [
+      userId,
+      roomId,
+      number,
+      type,
+      description,
+      startDate,
+      endDate,
+      amountOfDays,
+      fullPrice,
+    ],
+    (error, result) => {
+      if (error) {
+        console.log(error);
+        res.send("Database error");
+      } else {
+        const sql = "UPDATE rooms SET status = 'booked' WHERE id = ?";
+        con.query(sql, [roomId], (error, result) => {
+          if (error) {
+            console.log(error);
+            res.send("Database error");
+          } else {
+            res.send(result);
+          }
+        });
+      }
     }
-    room.status = "booked";
-    await room.save();
-    res.send(result);
-  } catch (error) {
-    console.log(error);
-  }
+  );
 });
 //отменить забронированную палату
-app.post("/delete-room", async (req, res) => {
-  const { _id, roomId } = req.body;
-  // Удаляем комнату с указанным _id из bookedRooms
-  const deletedRoom = await BookedRoom.findOneAndDelete({ _id });
+app.post("/delete-room", (req, res) => {
+  const { id, room_id } = req.body;
 
-  // Если комната не найдена, возвращаем ошибку
-  if (!deletedRoom) {
-    throw new Error("Room not found");
-  }
-  // Изменяем статус комнаты с указанным _id в rooms на "free"
-  const updatedRoom = await Room.findOneAndUpdate(
-    { _id: roomId },
-    { status: "free" }
-  );
-  // Если комната не найдена, возвращаем ошибку
-  if (!updatedRoom) {
-    throw new Error("Room not found");
-  }
+  const sql1 = "DELETE FROM booked_rooms WHERE id = ?";
+  con.query(sql1, [id], (error, result) => {
+    if (error) {
+      console.log(error);
+      res.send("Database error");
+    } else {
+      const sql2 = "UPDATE rooms SET status = 'free' WHERE id = ?";
+      con.query(sql2, [room_id], (error, result) => {
+        if (error) {
+          console.log(error);
+          res.send("Database error");
+        } else {
+          res.send(result);
+        }
+      });
+    }
+  });
 });
 
-//запуск сервера
-app.listen(PORT, () => {
-  try {
-    console.log(`server has been started ${PORT}...`);
-  } catch (error) {
-    console.log(error);
-  }
+// Закрываем соединение с базой данных при остановке сервера
+process.on("SIGINT", () => {
+  con.end((error) => {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log("Database connection closed");
+    }
+    process.exit();
+  });
+});
+
+app.listen(8080, () => {
+  console.log("Server is running on port 7000");
 });
