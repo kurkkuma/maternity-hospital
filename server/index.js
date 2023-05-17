@@ -9,12 +9,12 @@ con.connect((error) => {
   if (error) console.log(error);
   console.log("Connected to db");
 });
-
 //устраняем ошибку политики безопасности CORS
 app.use(cors());
 // Регистрируем парсер формата JSON в приложении, чтобы можно было работать с данными, переданными в теле запроса, позволяет Express правильно распознавать JSON и URL-encoded данные, переданные в запросе, и обрабатывать их
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
 ////////////////////////////////////////////////////////////////////////////////
 app.get("/", (req, res) => {
   res.send("hello :)");
@@ -23,6 +23,7 @@ app.get("/", (req, res) => {
 //получаем все палаты с бд
 app.get("/rooms", (req, res) => {
   try {
+    //делаем запрос на все палаты
     const sql = "SELECT * FROM rooms";
     con.query(sql, (error, result) => {
       if (error) {
@@ -39,6 +40,7 @@ app.get("/rooms", (req, res) => {
 //получить все забронированные палаты
 app.get("/booked-rooms", async (req, res) => {
   try {
+    //запрос на все забронированные палаты
     const sql = "SELECT * FROM booked_rooms";
     con.query(sql, (error, result) => {
       if (error) {
@@ -55,7 +57,7 @@ app.get("/booked-rooms", async (req, res) => {
 //регистрация
 app.post("/register", (req, res) => {
   const { name, surname, phone, password } = req.body;
-
+  //запрос на вставку в таблицу нового пользователя
   const sql = "INSERT INTO users(name,surname,phone,password) VALUES(?,?,?,?)";
   con.query(sql, [name, surname, phone, password], (error, result) => {
     if (error) console.log(error);
@@ -72,8 +74,10 @@ app.post("/login", async (req, res) => {
       if (error) {
         console.log(error);
         res.status(500).json({ message: "Internal server error" });
+        //обработка успешного результата
       } else if (result.length > 0) {
         res.status(200).json(result[0]);
+        //обработка неудачного результата
       } else {
         res.status(401).json({ message: "This user does not exist" });
       }
@@ -96,7 +100,7 @@ app.post("/add-booked-room", (req, res) => {
     amountOfDays,
     fullPrice,
   } = req.body;
-
+  //запрос на добавление данных о забронированной палаты
   const sql =
     "INSERT INTO booked_rooms(user_id, room_id, number, type, description, start_date, end_date, amount_days, full_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
   con.query(
@@ -116,7 +120,8 @@ app.post("/add-booked-room", (req, res) => {
       if (error) {
         console.log(error);
         res.send("Database error");
-      } else {
+      } //если ошибки нет то меняем статус палаты на забронированный
+      else {
         const sql = "UPDATE rooms SET status = 'booked' WHERE id = ?";
         con.query(sql, [roomId], (error, result) => {
           if (error) {
@@ -166,5 +171,5 @@ process.on("SIGINT", () => {
 });
 
 app.listen(8080, () => {
-  console.log("Server is running on port 7000");
+  console.log("Server is running on port 8080");
 });

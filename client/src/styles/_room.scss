@@ -1,0 +1,156 @@
+.acc-room {
+  position: fixed;
+  width: 85%;
+  height: 75%;
+  margin: 10% 0 0 9%;
+  display: flex;
+  gap: 5%;
+
+  .room-info {
+    width: 50%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 3%;
+    box-shadow: 0 0 30px -20px #757a89;
+    background-color: #ffffff;
+
+    .info-title {
+      color: #444c66;
+      font-size: 180%;
+      margin-bottom: 30px;
+    }
+    .info-number {
+      color: #0452d7;
+      font-size: 170%;
+    }
+    .info-start-date,
+    .info-end-date {
+      color: #0452d7;
+    }
+    .info-warning {
+      color: #757a89;
+      font-size: 140%;
+    }
+    & p {
+      color: #444c66;
+      font-size: 140%;
+    }
+    & h6 {
+      width: 40%;
+      margin-top: 30px;
+      color: #757a89;
+      font-size: 140%;
+      transition: all 0.5s ease-in-out;
+      cursor: pointer;
+
+      &:hover {
+        color: #e24c4c;
+      }
+    }
+  }
+  .room-booking {
+    width: 42%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 3%;
+    box-shadow: 0 0 30px -20px #757a89;
+    background-color: #ffffff;
+
+    .booking-title {
+      color: #444c66;
+      font-size: 180%;
+      margin-bottom: 30px;
+    }
+    .booking-price {
+      font-size: 140%;
+      color: #444c66;
+    }
+    .booking-label-conainer {
+      width: 80%;
+      display: flex;
+      justify-content: space-between;
+    }
+    & label {
+      font-size: 140%;
+      color: #0452d7;
+    }
+    & select {
+      width: 40%;
+      height: 30px;
+      font-size: 105%;
+      color: #444c66;
+      cursor: pointer;
+    }
+    & input {
+      width: 40%;
+      height: 30px;
+      font-size: 105%;
+      color: #444c66;
+      cursor: pointer;
+    }
+    .booking-btn {
+      position: relative;
+      display: block;
+      width: 40%;
+      height: 50px;
+      margin-top: 30px;
+      border: none;
+      font-size: 130%;
+      background: transparent;
+      color: #0452d7;
+      overflow: hidden;
+      z-index: 1;
+      cursor: pointer;
+
+      & span {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        background: white;
+        z-index: -1;
+        border: 4px solid #0452d7;
+      }
+      & span::before {
+        content: "";
+        display: block;
+        position: absolute;
+        width: 80%;
+        height: 20%;
+        background: white;
+        top: 0%;
+        left: 40%;
+        transform: translate(-50%, -50%) rotate(30deg);
+
+        transition: all 0.5s;
+      }
+      &:hover span::before {
+        transform: translate(-50%, -50%) rotate(30deg);
+        height: 450%;
+        width: 450%;
+        top: 50%;
+        left: 50%;
+        background-color: #0452d7;
+      }
+      &:hover {
+        color: white;
+      }
+      &:active span::before {
+        background-color: #003796;
+      }
+    }
+    .booking-error {
+      width: 80%;
+      font-size: 120%;
+      color: #e24c4c;
+      opacity: 0;
+      animation: appearance 0.5s ease-in-out both,
+        disappearance 0.5s ease-in-out 6s both;
+    }
+  }
+}

@@ -50,6 +50,8 @@ interface AppContextType {
   bookedRooms: Array<BookedRoomType>;
   userBookedRoom: BookedRoomType | undefined;
   setUserBookedRoom: (userBookedRoom: BookedRoomType | undefined) => void;
+  activeTab: string;
+  setActiveTab: (activeTab: "room" | "appointment") => void;
 }
 //создание контекста и указание начального значения для данных
 export const AppContext = createContext<AppContextType>({
@@ -61,6 +63,8 @@ export const AppContext = createContext<AppContextType>({
   bookedRooms: [],
   userBookedRoom: undefined as BookedRoomType | undefined,
   setUserBookedRoom: () => {},
+  activeTab: "room",
+  setActiveTab: () => {},
 });
 ////////////////////////////////////////////////////////////////////////////////////////////
 function App() {
@@ -75,6 +79,8 @@ function App() {
   const [userBookedRoom, setUserBookedRoom] = useState<
     BookedRoomType | undefined
   >();
+
+  const [activeTab, setActiveTab] = useState<string>("room");
 
   //при монтировании компонента отправится запрос на получение всех палат
   useEffect(() => {
@@ -102,6 +108,8 @@ function App() {
       bookedRooms,
       userBookedRoom,
       setUserBookedRoom,
+      activeTab,
+      setActiveTab,
     }),
     [
       logData,
@@ -112,6 +120,8 @@ function App() {
       bookedRooms,
       userBookedRoom,
       setUserBookedRoom,
+      activeTab,
+      setActiveTab,
     ]
   );
 

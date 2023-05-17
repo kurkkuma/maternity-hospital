@@ -4,9 +4,11 @@ import { AppContext } from "../App";
 
 import RoomInfo from "./RoomInfo";
 import RoomBooking from "./RoomBooking";
+import AppointmentInfo from "./AppointmentInfo";
+import AppointmentBooking from "./AppointmentBooking";
 
 function Account() {
-  const { user, setUser } = useContext(AppContext);
+  const { user, setUser, activeTab, setActiveTab } = useContext(AppContext);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -28,11 +30,21 @@ function Account() {
           <h1 className="header-user-name">
             {user.name} {user.surname}
           </h1>
-          {/* <h1>{user.phone}</h1> */}
         </div>
         <div className="header-points">
-          <p className="active">Забронювати палту</p>
-          <p>Записатись на прийом до лікаря</p>
+          {/* в зависимости от нажатой вкладки обновляем стейт с активным табом */}
+          <p
+            onClick={() => setActiveTab("room")}
+            className={activeTab === "room" ? "active" : ""}
+          >
+            Забронювати палту
+          </p>
+          <p
+            onClick={() => setActiveTab("appointment")}
+            className={activeTab === "appointment" ? "active" : ""}
+          >
+            Записатись на прийом до лікаря
+          </p>
         </div>
       </header>
       <div className="acc-side-panel">
@@ -65,10 +77,18 @@ function Account() {
           alt=""
         />
       </div>
-      <div className="acc-room">
-        <RoomInfo />
-        <RoomBooking />
-      </div>
+      {/* в зависимости от активного таба отображаем компоненты */}
+      {activeTab === "room" ? (
+        <div className="acc-room">
+          <RoomInfo />
+          <RoomBooking />
+        </div>
+      ) : (
+        <div className="acc-appointment">
+          <AppointmentInfo />
+          <AppointmentBooking />
+        </div>
+      )}
     </div>
   );
 }
