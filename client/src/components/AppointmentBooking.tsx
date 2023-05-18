@@ -6,7 +6,7 @@ function AppointmentBooking() {
   const { doctors, user } = useContext(AppContext);
   //выбранная специальность врача (задаем значение по умолчанию)
   const [selectedSpeciality, setSelectedSpeciality] = useState<string>(
-    doctors[0].speciality
+    doctors[0]?.speciality
   );
   //фильтруем врачей по выбранной специальности
   const filteredDoctors: DoctorsType[] = doctors.filter(
@@ -14,7 +14,7 @@ function AppointmentBooking() {
   );
   //ставим по умолчанию имя первого доктора выбранной специальности
   const [selectedName, setSelectedName] = useState<string>(
-    filteredDoctors[0].name
+    filteredDoctors[0]?.name
   );
   //выбранный доктор по имени
   const [selectedDoctor, setSelectedDoctor] = useState(
@@ -28,6 +28,7 @@ function AppointmentBooking() {
     if (selectedDoctor && selectedDoctor.schedule)
       return JSON.parse(selectedDoctor?.schedule);
   };
+
   const getDate = (daysOfWeek: {}) => {
     const result: any[] = [];
     //из объекта графика работы врача делаем массив с днями по которым он работает
@@ -110,10 +111,8 @@ function AppointmentBooking() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
-    })
-      // .then((res) => res.json())
-      .catch((error) => console.log(error));
-    // location.reload();
+    }).catch((error) => console.log(error));
+    location.reload();
   };
 
   return (

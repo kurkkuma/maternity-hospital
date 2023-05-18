@@ -237,6 +237,62 @@ app.post("/make-appointment", (req, res) => {
     }
   );
 });
+//удалить запись на прием
+app.post("/delete-appointment", (req, res) => {
+  const { id, doctor_id, date, time } = req.body;
+  //запрос на удаление приема
+  const deleteAppointmentSql = "DELETE FROM appointments WHERE id = ?";
+  con.query(deleteAppointmentSql, [id], (error, result) => {
+    if (error) {
+      console.log(error);
+      res.send("Database error");
+    } //если прием удалился успешно то добовляем обратно время в свободные окошки врача
+    else {
+      const getDoctorScheduleSql = "SELECT schedule FROM doctors WHERE id = ?";
+      con.query(getDoctorScheduleSql, [doctor_id], (error, result) => {
+        if (error) {
+          console.log(error);
+          return res.status(500).send("Database error");
+        }
+        if (result.length === 0 || !result[0].schedule) {
+          console.log("Doctor schedule not found");
+          return;
+        }
+        //берем из результата запроса график доктора и парсим в объект
+        const doctorSchedule = JSON.parse(result[0].schedule);
+        // Извлекаем день недели (индекс) из выбранной даты
+        const dayOfWeek = new Date(date.slice(0, 10)).getDay().toString();
+        // Получаем массив свободных временных слотов для выбранного дня недели
+        const availableTimes = doctorSchedule[dayOfWeek] || [];
+        // Добавляем время записи на прием в массив свободных временных слотов
+        availableTimes.push(time);
+        // Отсортировываем массив свободных временных слотов по возрастанию времени
+        availableTimes.sort();
+        //запрос на обновление графика работы врача
+        const updateDoctorScheduleSql =
+          "UPDATE doctors SET schedule = ? WHERE id = ?";
+        //к прошлому графику добавляем обновленный день с обновленными окошками
+        const updatedSchedule = JSON.stringify({
+          ...doctorSchedule,
+          [dayOfWeek]: availableTimes,
+        });
+        //отправляем запрос
+        con.query(
+          updateDoctorScheduleSql,
+          [updatedSchedule, doctor_id],
+          (error, result) => {
+            if (error) {
+              console.log(error);
+              res.send("Database error");
+            } else {
+              res.send("Appointment deleted successfully");
+            }
+          }
+        );
+      });
+    }
+  });
+});
 
 // Закрываем соединение с базой данных при остановке сервера
 process.on("SIGINT", () => {
