@@ -40,6 +40,17 @@ export type BookedRoomType = {
   amount_days: number;
   full_price: number;
 };
+// type ScheduleType = {
+//   [key: string]: string;
+// };
+export type DoctorsType = {
+  id: number;
+  name: string;
+  speciality: string;
+  office: number;
+  // schedule: ScheduleType;
+  schedule: any;
+};
 //типизация данных передаваемых в контекст
 interface AppContextType {
   logData: Array<LogDataType>;
@@ -52,6 +63,7 @@ interface AppContextType {
   setUserBookedRoom: (userBookedRoom: BookedRoomType | undefined) => void;
   activeTab: string;
   setActiveTab: (activeTab: "room" | "appointment") => void;
+  doctors: Array<DoctorsType>;
 }
 //создание контекста и указание начального значения для данных
 export const AppContext = createContext<AppContextType>({
@@ -65,6 +77,7 @@ export const AppContext = createContext<AppContextType>({
   setUserBookedRoom: () => {},
   activeTab: "room",
   setActiveTab: () => {},
+  doctors: [],
 });
 ////////////////////////////////////////////////////////////////////////////////////////////
 function App() {
@@ -74,6 +87,7 @@ function App() {
   });
   const [rooms, setRooms] = useState<RoomType[]>([]);
   const [bookedRooms, setBookedRooms] = useState<BookedRoomType[]>([]);
+  const [doctors, setDoctors] = useState<DoctorsType[]>([]);
 
   //берем палату авторизированного пользователя
   const [userBookedRoom, setUserBookedRoom] = useState<
@@ -91,6 +105,10 @@ function App() {
     fetch("http://localhost:8080/booked-rooms")
       .then((res) => res.json())
       .then((data) => setBookedRooms(data));
+
+    fetch("http://localhost:8080/doctors")
+      .then((res) => res.json())
+      .then((data) => setDoctors(data));
   }, []);
 
   useEffect(() => {
@@ -110,6 +128,7 @@ function App() {
       setUserBookedRoom,
       activeTab,
       setActiveTab,
+      doctors,
     }),
     [
       logData,
@@ -122,6 +141,7 @@ function App() {
       setUserBookedRoom,
       activeTab,
       setActiveTab,
+      doctors,
     ]
   );
 

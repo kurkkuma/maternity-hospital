@@ -37,11 +37,28 @@ app.get("/rooms", (req, res) => {
     res.send("Server error");
   }
 });
-//получить все забронированные палаты
-app.get("/booked-rooms", async (req, res) => {
+//получаем все забронированные палаты
+app.get("/booked-rooms", (req, res) => {
   try {
     //запрос на все забронированные палаты
     const sql = "SELECT * FROM booked_rooms";
+    con.query(sql, (error, result) => {
+      if (error) {
+        console.log(error);
+        res.send("Database error");
+      } else {
+        res.json(result);
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
+//получаем всех врачей
+app.get("/doctors", (req, res) => {
+  try {
+    //запрос на всех врачей с бд
+    const sql = "SELECT * FROM doctors";
     con.query(sql, (error, result) => {
       if (error) {
         console.log(error);
@@ -156,6 +173,52 @@ app.post("/delete-room", (req, res) => {
       });
     }
   });
+});
+//записаться на прием
+app.post("/make-appointment", (req, res) => {
+  const { user_id, doctor_id, speciality, name, office, date, time, schedule } =
+    req.body;
+
+  const sql =
+    "INSERT INTO appointments(user_id, doctor_id, speciality, name, office, date, time) VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+  con.query(
+    sql,
+    [user_id, doctor_id, speciality, name, office, date, time],
+    (error, result) => {
+      if (error) {
+        console.log(error);
+        res.send("Database error");
+      } else {
+        const doctorSchedule = schedule;
+        // Извлекаем день недели (индекс) из выбранной даты
+        const dayOfWeek = new Date(date.slice(0, 10)).getDay();
+        // Удаляем забронированное время из графика работы выбранного дня
+        const filteredSchedule = doctorSchedule[dayOfWeek].filter(
+          (t) => t !== time
+        );
+        // Обновляем объект графика работы выбранного доктора
+        doctorSchedule[dayOfWeek] = filteredSchedule;
+        // Преобразуем обновленный график работы обратно в формат JSON
+        const filteredScheduleJSON = JSON.stringify(doctorSchedule);
+        // Обновляем график работы в базе данных для выбранного доктора
+        const updateDoctorScheduleSql =
+          "UPDATE doctors SET schedule = ? WHERE id = ?";
+        con.query(
+          updateDoctorScheduleSql,
+          [filteredScheduleJSON, doctor_id],
+          (error, result) => {
+            if (error) {
+              console.log(error);
+              res.send("Database error");
+            } else {
+              res.send("Appointment booked successfully");
+            }
+          }
+        );
+      }
+    }
+  );
 });
 
 // Закрываем соединение с базой данных при остановке сервера
