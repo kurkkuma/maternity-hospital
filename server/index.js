@@ -71,6 +71,23 @@ app.get("/doctors", (req, res) => {
     console.log(error);
   }
 });
+//получаем записи на прием
+app.get("/appointments", (req, res) => {
+  try {
+    //запрос на все записи на прием с бд
+    const sql = "SELECT * FROM appointments";
+    con.query(sql, (error, result) => {
+      if (error) {
+        console.log(error);
+        res.send("Database error");
+      } else {
+        res.json(result);
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
 //регистрация
 app.post("/register", (req, res) => {
   const { name, surname, phone, password } = req.body;

@@ -14,14 +14,14 @@ type LogDataType = {
   description: string;
 };
 type UserType = {
-  id: string;
+  id: number;
   name: string;
   surname: string;
   phone: string;
   password: string;
 };
 export type RoomType = {
-  id: string;
+  id: number;
   number: number;
   type: string;
   description: string;
@@ -29,9 +29,9 @@ export type RoomType = {
   status: string;
 };
 export type BookedRoomType = {
-  id: string;
-  user_id: string;
-  room_id: string;
+  id: number;
+  user_id: number;
+  room_id: number;
   number: number;
   type: string;
   description: string;
@@ -40,16 +40,23 @@ export type BookedRoomType = {
   amount_days: number;
   full_price: number;
 };
-// type ScheduleType = {
-//   [key: string]: string;
-// };
 export type DoctorsType = {
   id: number;
   name: string;
   speciality: string;
   office: number;
-  // schedule: ScheduleType;
   schedule: any;
+};
+export type AppointmentType = {
+  id: number;
+  user_id: number;
+  doctor_id: number;
+  speciality: string;
+  name: string;
+  office: number;
+  date: string;
+  time: string;
+  schedule: Record<string, unknown>;
 };
 //типизация данных передаваемых в контекст
 interface AppContextType {
@@ -64,6 +71,8 @@ interface AppContextType {
   activeTab: string;
   setActiveTab: (activeTab: "room" | "appointment") => void;
   doctors: Array<DoctorsType>;
+  userAppointments: Array<AppointmentType> | undefined;
+  setUserAppointments: (appointments: AppointmentType[]) => void;
 }
 //создание контекста и указание начального значения для данных
 export const AppContext = createContext<AppContextType>({
@@ -78,6 +87,8 @@ export const AppContext = createContext<AppContextType>({
   activeTab: "room",
   setActiveTab: () => {},
   doctors: [],
+  userAppointments: undefined as AppointmentType[] | undefined,
+  setUserAppointments: () => {},
 });
 ////////////////////////////////////////////////////////////////////////////////////////////
 function App() {
@@ -88,10 +99,15 @@ function App() {
   const [rooms, setRooms] = useState<RoomType[]>([]);
   const [bookedRooms, setBookedRooms] = useState<BookedRoomType[]>([]);
   const [doctors, setDoctors] = useState<DoctorsType[]>([]);
+  const [appointments, setAppointments] = useState<AppointmentType[]>([]);
 
   //берем палату авторизированного пользователя
   const [userBookedRoom, setUserBookedRoom] = useState<
     BookedRoomType | undefined
+  >();
+  //берем все записи на прием авторизированного пользователя
+  const [userAppointments, setUserAppointments] = useState<
+    AppointmentType[] | undefined
   >();
 
   const [activeTab, setActiveTab] = useState<string>("room");
@@ -109,12 +125,21 @@ function App() {
     fetch("http://localhost:8080/doctors")
       .then((res) => res.json())
       .then((data) => setDoctors(data));
+
+    fetch("http://localhost:8080/appointments")
+      .then((res) => res.json())
+      .then((data) => setAppointments(data));
   }, []);
 
   useEffect(() => {
     setUserBookedRoom(bookedRooms.find((room) => room.user_id === user.id));
   }, [bookedRooms, user]);
 
+  useEffect(() => {
+    setUserAppointments(
+      appointments.filter((appointment) => appointment.user_id === user.id)
+    );
+  }, [appointments, user]);
   //используем useMemo для оптимизации контекста, объект appContextValue будет пересоздан только, если logData или regData изменились.
   const appContextValue = useMemo(
     () => ({
@@ -129,6 +154,8 @@ function App() {
       activeTab,
       setActiveTab,
       doctors,
+      userAppointments,
+      setUserAppointments,
     }),
     [
       logData,
@@ -142,6 +169,8 @@ function App() {
       activeTab,
       setActiveTab,
       doctors,
+      userAppointments,
+      setUserAppointments,
     ]
   );
 
