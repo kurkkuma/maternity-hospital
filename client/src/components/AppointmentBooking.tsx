@@ -127,13 +127,18 @@ function AppointmentBooking() {
           name="doctor-speciality"
         >
           {/* отображаем все специальности врачей */}
-          {doctors.map((doctor, index) => {
-            return (
-              <option key={index} value={doctor.speciality}>
-                {doctor.speciality}
-              </option>
-            );
-          })}
+          {/* 1. создаем массив всех специальностей 
+          2. Конструктор Set создает новый объект Set, который содержит только уникальные значения из исходного массива специальностей
+          3. Array.from для преобразования объекта Set обратно в массив.  */}
+          {Array.from(new Set(doctors.map((doctor) => doctor.speciality))).map(
+            (speciality, index) => {
+              return (
+                <option key={index} value={speciality}>
+                  {speciality}
+                </option>
+              );
+            }
+          )}
         </select>
       </div>
       <div className="booking-label-conainer">
