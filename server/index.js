@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const bcrypt = require("bcrypt");
 const con = require("./connection");
 // Создаем экземпляр приложения Express
 const app = express();
@@ -105,11 +106,22 @@ app.post("/register", (req, res) => {
           .send("User with this phone number already exists");
       }
       // Если пользователь не найден, выполняем вставку нового пользователя в базу данных
-      const sql =
-        "INSERT INTO users(name,surname,phone,password) VALUES(?,?,?,?)";
-      con.query(sql, [name, surname, phone, password], (error, result) => {
-        if (error) console.log(error);
-        res.send(`${result.surname} added to db`);
+      // Хеширование пароля
+      bcrypt.hash(password, 10, (err, hashedPassword) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).json({ message: "Internal server error" });
+        }
+        const sql =
+          "INSERT INTO users(name,surname,phone,password) VALUES(?,?,?,?)";
+        con.query(
+          sql,
+          [name, surname, phone, hashedPassword],
+          (error, result) => {
+            if (error) console.log(error);
+            res.send(`${result.surname} added to db`);
+          }
+        );
       });
     }
   });
@@ -119,14 +131,27 @@ app.post("/login", async (req, res) => {
   try {
     const { phone, password } = req.body;
     //поиск пользователя в базе данных
-    const sql = "SELECT * FROM users WHERE phone = ? AND password = ?";
-    con.query(sql, [phone, password], (error, result) => {
+    const sql = "SELECT * FROM users WHERE phone = ?";
+    con.query(sql, [phone], (error, result) => {
       if (error) {
         console.log(error);
         res.status(500).json({ message: "Internal server error" });
-        //обработка успешного результата
-      } else if (result.length > 0) {
-        res.status(200).json(result[0]);
+      } //обработка успешного результата
+      else if (result.length > 0) {
+        // Сравнение хэшированного пароля с введенным паролем
+        bcrypt.compare(password, result[0].password, (err, isMatch) => {
+          if (err) {
+            console.log(err);
+            return res.status(500).json({ message: "Internal server error" });
+          }
+          // В случае успешного совпадения
+          if (isMatch) {
+            res.status(200).json(result[0]);
+          } else {
+            res.status(401).json({ message: "Invalid credentials" });
+          }
+        });
+
         //обработка неудачного результата
       } else {
         res.status(401).json({ message: "This user does not exist" });

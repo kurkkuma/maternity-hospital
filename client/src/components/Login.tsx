@@ -29,8 +29,8 @@ function Login() {
     //если валидация прошла успешно и нет ошибок, сохраняем данные и отправляем на сервер
     if (newErrors.length === 0) {
       const data = {
-        phone: logPhone,
-        password: logPassword,
+        phone: logPhone.trim(),
+        password: logPassword.trim(),
       };
       //отправка данных на сервер
       fetch("http://localhost:8080/login", {

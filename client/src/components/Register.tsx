@@ -47,10 +47,10 @@ function Register() {
     //если валидация прошла успешно и нет ошибок, сохраняем данные и отправляем на сервер
     if (newErrors.length === 0) {
       const data = {
-        name: regName,
-        surname: regSurname,
-        phone: regPhone,
-        password: regPassword,
+        name: regName.trim(),
+        surname: regSurname.trim(),
+        phone: regPhone.trim(),
+        password: regPassword.trim(),
       };
       //отправка данных на сервер
       fetch("http://localhost:8080/register", {
