@@ -91,20 +91,36 @@ app.get("/appointments", (req, res) => {
 //регистрация
 app.post("/register", (req, res) => {
   const { name, surname, phone, password } = req.body;
-  //запрос на вставку в таблицу нового пользователя
-  const sql = "INSERT INTO users(name,surname,phone,password) VALUES(?,?,?,?)";
-  con.query(sql, [name, surname, phone, password], (error, result) => {
-    if (error) console.log(error);
-    res.send(`${result.surname} added to db`);
+  //ищем пользователя с таким же телефоном
+  const checkUserSql = "SELECT * FROM users WHERE phone = ?";
+  con.query(checkUserSql, [phone], (error, result) => {
+    if (error) {
+      console.log(error);
+      res.send("Database error");
+    } else {
+      // Если найден пользователь с таким номером телефона, возвращаем ошибку
+      if (result.length > 0) {
+        return res
+          .status(400)
+          .send("User with this phone number already exists");
+      }
+      // Если пользователь не найден, выполняем вставку нового пользователя в базу данных
+      const sql =
+        "INSERT INTO users(name,surname,phone,password) VALUES(?,?,?,?)";
+      con.query(sql, [name, surname, phone, password], (error, result) => {
+        if (error) console.log(error);
+        res.send(`${result.surname} added to db`);
+      });
+    }
   });
 });
 //авторизация
 app.post("/login", async (req, res) => {
   try {
-    const { surname, password } = req.body;
+    const { phone, password } = req.body;
     //поиск пользователя в базе данных
-    const sql = "SELECT * FROM users WHERE surname = ? AND password = ?";
-    con.query(sql, [surname, password], (error, result) => {
+    const sql = "SELECT * FROM users WHERE phone = ? AND password = ?";
+    con.query(sql, [phone, password], (error, result) => {
       if (error) {
         console.log(error);
         res.status(500).json({ message: "Internal server error" });

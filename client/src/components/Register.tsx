@@ -61,19 +61,17 @@ function Register() {
         body: JSON.stringify(data),
       })
         .then((response) => {
-          if (response.status === 409) {
+          if (response.status === 400) {
             //если номер телефона уже занят то меняем значение ошибки на true что бы предупредить пользователя
             setPhoneError(true);
             throw new Error("this phone is already taken");
+          } else {
+            //если все в порядке убираем ошибку
+            setPhoneError(false);
+            navigate("/");
           }
-          //если все в порядке убираем ошибку
-          setPhoneError(false);
-          return response.json();
         })
-        .then((data) => console.log(data))
         .catch((error) => console.error(error));
-
-      navigate("/");
     }
   };
 

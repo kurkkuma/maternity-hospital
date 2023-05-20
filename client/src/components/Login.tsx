@@ -8,7 +8,7 @@ function Login() {
   //используем хук для будущей навигации
   const navigate = useNavigate();
   //данные которые ввел пользователь
-  const [logSurname, setLogSurname] = useState<string>("");
+  const [logPhone, setLogPhone] = useState<string>("");
   const [logPassword, setLogPassword] = useState<string>("");
   //массив с ошибками для валидации данных при авторизации
   const [errors, setErrors] = useState<string[]>([]);
@@ -21,7 +21,7 @@ function Login() {
     e.preventDefault();
     let newErrors = [];
     //проверяем заполнены ли все поля
-    if (logSurname.trim().length === 0 || logPassword.trim().length === 0) {
+    if (logPhone.trim().length === 0 || logPassword.trim().length === 0) {
       newErrors.push("Заповніть всі поля");
     }
     //сохраняем все ошибки в стейт
@@ -29,7 +29,7 @@ function Login() {
     //если валидация прошла успешно и нет ошибок, сохраняем данные и отправляем на сервер
     if (newErrors.length === 0) {
       const data = {
-        surname: logSurname,
+        phone: logPhone,
         password: logPassword,
       };
       //отправка данных на сервер
@@ -91,12 +91,12 @@ function Login() {
         </h3>
         <p className="form-title">Увійдіть до свого облікового запису</p>
         <input
-          name="surname"
-          value={logSurname}
-          onChange={(e) => setLogSurname(e.target.value)}
+          name="phone"
+          value={logPhone}
+          onChange={(e) => setLogPhone(e.target.value)}
           type="text"
-          placeholder="Ваше прізвище"
-          className="form-surname"
+          placeholder="Ваш номер телефону формату"
+          className="form-phone"
         />
         <input
           name="password"
